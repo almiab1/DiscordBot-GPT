@@ -34,7 +34,7 @@ const getContext = async (message, maxMsgContext, prefixMsg) => {
 
     context.push({
         role: "system",
-        content: "",
+        content: "You are a helpful assistant.",
     });
 
     let preMessages = await message.channel.messages.fetch({ limit: maxMsgContext });
@@ -108,7 +108,7 @@ client.on('messageCreate', async (message) => {
         message.reply("No se pudo obtener respuesta del servidor");
         return;
     }
-    
+
     // Send response
     message.reply(response.choices[0].message.content);
 

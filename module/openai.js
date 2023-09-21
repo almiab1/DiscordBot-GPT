@@ -16,7 +16,7 @@ const openai = new OpenAI(process.env.OPENAI_API_KEY);
 // ------------------------------------------------------------------
 const gptModels = {
     gpt3: "gpt-3.5-turbo",
-    gpt3pro: "gpt-3.5-turbo-16k",
+    gpt3pro: "gpt-3.5-turbo-0613",
     gpt4: "gpt-4",
 }
 // ------------------------------------------------------------------
