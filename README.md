@@ -40,7 +40,7 @@ Si deseas contribuir a este proyecto, sigue los siguientes pasos:
 
 ## Contacto
 
-Si tienes alguna pregunta o sugerencia, puedes contactarme a través de [correo electrónico](miraabad.alejandro@gmail.com).
+Si tienes alguna pregunta o sugerencia, puedes contactarme a través de [correo electrónico](mailto:miraabad.alejandro@gmail.com).
 
 ## Licencia
 
