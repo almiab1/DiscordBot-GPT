@@ -1,0 +1,66 @@
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build output
+build/
+dist/
+out/
+public/
+
+# Coverage
+coverage/
+
+# Next.js
+.next/
+out/
+
+# nuxt.js
+.nuxt/
+
+# Parcel
+.cache/
+.parcel-cache/
+
+# Yarn
+yarn-error.log
+yarn.lock
+.pnp.*
+
+# dotenv
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Mac files
+.DS_Store
+
+# Windows files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
