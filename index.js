@@ -10,14 +10,14 @@ client.once('ready', () => {
   console.log('Ready!');
 });
 
-const IGNORE_PREFIX = "!";
+const IGNORE_PREFIX = "!ai";
 const CHANNELS = [process.env.CHANNEL_ID]
 
 const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
-    if (message.content.startsWith(IGNORE_PREFIX)) return;
+    if (!message.content.startsWith(IGNORE_PREFIX)) return;
     if (!CHANNELS.includes(message.channel.id) && !message.mentions.users.has(client.user.id)) return;
 
     await message.channel.sendTyping();
@@ -58,11 +58,10 @@ client.on('messageCreate', async (message) => {
         });
     })
 
-    const response = await openai.chat.completions.create(
-            {
-                model: "gpt-3.5-turbo",
-                messages: conversarion,
-            }).catch((error) => console.log(error));
+    const response = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: conversarion,
+    }).catch((error) => console.log(error));
 
     clearInterval(sendTypingInterval);
 
