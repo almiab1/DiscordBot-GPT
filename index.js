@@ -1,49 +1,53 @@
+// ------------------------------------------------------------------
+// Imports
+// ------------------------------------------------------------------
 require('dotenv').config();
 const { Client } = require('discord.js');
-const { OpenAI } =  require("openai");
+const openai = require('./module/openai');
+// ------------------------------------------------------------------
 
+// ------------------------------------------------------------------
+// Discord configuration
+// ------------------------------------------------------------------
+
+// Declare intents
 const intents = ['Guilds', 'GuildMembers', 'GuildMessages', 'MessageContent'];
 
+// Create a new client instance
 const client = new Client({ intents: intents });
+// ------------------------------------------------------------------
 
-client.once('ready', () => {
-  console.log('Ready!');
-});
+// ------------------------------------------------------------------
+// Auxiliary functions
+// ------------------------------------------------------------------
+const isMsgValid = (message, prefixMsg, channels) => {
+    if (
+        message.author.bot || 
+        !message.content.startsWith(prefixMsg) || 
+        !channels.includes(message.channel.id) && !message.mentions.users.has(client.user.id)
+    ) return false;
+    return true;
+}
 
-const IGNORE_PREFIX = "!ai";
-const CHANNELS = [process.env.CHANNEL_ID]
+const getContext = async (message, maxMsgContext, prefixMsg) => {
+    let context = [];
 
-const openai = new OpenAI(process.env.OPENAI_API_KEY);
-
-client.on('messageCreate', async (message) => {
-    if (message.author.bot) return;
-    if (!message.content.startsWith(IGNORE_PREFIX)) return;
-    if (!CHANNELS.includes(message.channel.id) && !message.mentions.users.has(client.user.id)) return;
-
-    await message.channel.sendTyping();
-
-    const sendTypingInterval = setInterval(async () => {
-        await message.channel.sendTyping();
-    }, 5000);
-
-    let conversarion = [];
-
-    conversarion.push({
+    context.push({
         role: "system",
-        content: "Chat GPT es un puto",
+        content: "",
     });
 
-    let preMessages = await message.channel.messages.fetch({ limit: 10 });
+    let preMessages = await message.channel.messages.fetch({ limit: maxMsgContext });
 
     preMessages.reverse()
     preMessages.forEach((preMessage) => {
         if (preMessage.author.bot && message.author.id !== client.user.id) return;
-        if (preMessage.content.startsWith(IGNORE_PREFIX)) return;
+        if (!preMessage.content.startsWith(prefixMsg)) return;
 
         const username = preMessage.author.username.replace(/\s+/g, "_").replace(/[^\w\s]/gi, "");
 
         if(preMessage.author.id === client.user.id) {
-            conversarion.push({
+            context.push({
                 role: "assistant",
                 name: username,
                 content: preMessage.content,
@@ -51,27 +55,67 @@ client.on('messageCreate', async (message) => {
             return;
         }
 
-        conversarion.push({
+        context.push({
             role: "user",
             name: username,
             content: preMessage.content,
         });
     })
 
-    const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
-        messages: conversarion,
-    }).catch((error) => console.log(error));
+    return context;
+}
+// ------------------------------------------------------------------
 
+// ------------------------------------------------------------------
+// Discord events
+// ------------------------------------------------------------------
+
+// When the client is ready, run this code (only once)
+client.once('ready', () => {
+  console.log('Ready!');
+});
+
+// Parameters for the bot
+const PREFIX = "!ai";
+const CHANNELS = [process.env.CHANNEL_ID]
+const MAX_MSG_CONTEXT = 10;
+const GRADE_LIBERTY = 0.85;
+
+
+
+client.on('messageCreate', async (message) => {
+    // Check if message is valid
+    if (!isMsgValid(message, PREFIX, CHANNELS)) return;
+
+    // Send typing
+    await message.channel.sendTyping();
+    // Send typing every 5 seconds
+    const sendTypingInterval = setInterval(async () => {
+        await message.channel.sendTyping();
+    }, 5000);
+
+    // Conversation context
+    const conversarion = await getContext(message, MAX_MSG_CONTEXT, PREFIX);
+
+    // Get response from openai api
+    const response = await openai.getResponse(conversarion, GRADE_LIBERTY);
+
+    // Stop typing
     clearInterval(sendTypingInterval);
 
+    // Check if response is valid
     if(!response) {
         message.reply("No se pudo obtener respuesta del servidor");
         return;
     }
-
+    
+    // Send response
     message.reply(response.choices[0].message.content);
+
+    // Log response
     console.log(message.content);
 });
 
+// Discord login
 client.login(process.env.DISCORD_TOKEN);
+// ------------------------------------------------------------------

@@ -8,6 +8,7 @@
    1. DISCORD_TOKEN
    2. OPENAI_API_KEY
    3. CHANNEL_ID
+   4. GPT_MODEL (`gpt3`,`gpt3pro`,`gpt4`)
 4. Ejecuta el proyecto: `node index.js`
 
 ## Dependencias
